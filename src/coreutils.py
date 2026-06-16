@@ -4,6 +4,7 @@
 import os
 import sys
 import json
+import shlex
 import subprocess
 from urllib import request
 
@@ -70,7 +71,7 @@ def log(message: Optional[str] = None, open_log: bool = False) -> None:
             if message != None:
                 f.write(message)
         if open_log:
-            os.system(f"xdg-open '{wemodlog}'")
+            subprocess.run(["xdg-open", wemodlog])
 
 
 class SimpleResponse:
@@ -247,8 +248,7 @@ def pip(command: str, venv_path: Optional[str] = None) -> int:
     if pos_pip == None:
         pos_pip = "pip"
         process = subprocess.Popen(
-            f"'{pos_pip}' {command}",
-            shell=True,
+            [pos_pip] + shlex.split(command),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
@@ -265,8 +265,7 @@ def pip(command: str, venv_path: Optional[str] = None) -> int:
             log(f"Pip error occurred:\n\t{stdout}\n\t{stderr}")
     else:
         process = subprocess.Popen(
-            f"'{pos_pip}' {command}",
-            shell=True,
+            [pos_pip] + shlex.split(command),
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
         )
@@ -290,8 +289,7 @@ def pip(command: str, venv_path: Optional[str] = None) -> int:
 
     # Try to use the built-in pip
     process = subprocess.Popen(
-        f"'{python_executable}' -m pip {command}",
-        shell=True,
+        [python_executable, "-m", "pip"] + shlex.split(command),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )
@@ -334,8 +332,7 @@ def pip(command: str, venv_path: Optional[str] = None) -> int:
 
     # Execute the pip command using pip.pyz
     process = subprocess.Popen(
-        f"{python_executable} {pip_pyz} {command}",
-        shell=True,
+        [python_executable, pip_pyz] + shlex.split(command),
         stdout=subprocess.PIPE,
         stderr=subprocess.PIPE,
     )

@@ -171,7 +171,7 @@ def popup_execute(
 
     def process_func() -> None:
         process = sp.Popen(command, stdout=sp.PIPE, shell=True)
-        for line in iter(process.stdout.readline, ""):
+        for line in iter(process.stdout.readline, b""):
             if line is None or line == b"":
                 break
             s_line = line.decode("utf8")
@@ -206,8 +206,11 @@ def popup_execute(
 def download_progress(
     link: str, file_name: str, set_progress: Callable[[int, int], None]
 ) -> None:
+    response = http_get(link, stream=True)
+    status = getattr(response, "status_code", 200)
+    if status != 200:
+        raise Exception(f"Download of {link!r} failed with HTTP {status}")
     with open(file_name, "wb") as f:
-        response = http_get(link, stream=True)
         total_length = response.headers.get("content-length")
 
         dl = 0

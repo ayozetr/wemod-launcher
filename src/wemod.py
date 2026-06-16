@@ -207,8 +207,8 @@ def syncwemod(
         with open(INIT_FILE, "w") as init:
             init.write(initcont)
 
-        os.system(
-            "xdg-open '" + os.path.join(STEAM_COMPAT_FOLDER, "prefixes") + "'"
+        subprocess.run(
+            ["xdg-open", os.path.join(STEAM_COMPAT_FOLDER, "prefixes")]
         )
         log("Done creating Prefix zip")
         exit_with_message(

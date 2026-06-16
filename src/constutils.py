@@ -3,6 +3,8 @@
 
 import os
 import pwd
+import stat
+import shlex
 import shutil
 import subprocess
 
@@ -54,8 +56,10 @@ def ensure_wine(verstr: Optional[str] = None) -> str:
     if os.path.isdir(WinePfx):
         try:
             os.symlink(BASE_STEAM_COMPAT, WINEPREFIX)
-        except Exception as e:
+        except FileExistsError:
             pass
+        except OSError as e:
+            log(f"Could not link '{WINEPREFIX}' -> '{BASE_STEAM_COMPAT}': {e}")
 
     users = os.path.join(ProtonPfx, "users")
     myuser = None
@@ -79,13 +83,17 @@ def ensure_wine(verstr: Optional[str] = None) -> str:
         elif os.path.isdir(steamuser) and not os.path.isdir(mainuser):
             try:
                 os.symlink(steamuser, mainuser)
-            except Exception as e:
+            except FileExistsError:
                 pass
+            except OSError as e:
+                log(f"Could not link '{mainuser}' -> '{steamuser}': {e}")
         if os.path.isdir(mainuser) and not os.path.isdir(steamuser):
             try:
                 os.symlink(mainuser, steamuser)
-            except Exception as e:
+            except FileExistsError:
                 pass
+            except OSError as e:
+                log(f"Could not link '{steamuser}' -> '{mainuser}': {e}")
 
     if os.path.isdir(ProtonPfx):
         ProtonVersion = os.path.join(BASE_STEAM_COMPAT, "version")
@@ -292,7 +300,7 @@ def scanfolderforversions(
             with open(seveninit, "w") as init:
                 init.write(initcont)
 
-            os.system(f"xdg-open '{prefixesfolder}'")
+            subprocess.run(["xdg-open", prefixesfolder])
         elif prresp == "No":
             save_conf_setting("ProtonMinorSeven", "99")
 
@@ -309,21 +317,34 @@ def winetricks(command: str, proton_bin: str) -> int:
         resp = http_get(
             "https://github.com/Winetricks/winetricks/raw/master/src/winetricks"
         )
+        if getattr(resp, "status_code", 200) != 200:
+            message = f"failed to download winetricks (HTTP {getattr(resp, 'status_code', '?')})"
+            log(message)
+            exit_with_message("ERROR", message, ask_for_log=True)
         with open(winetricks_sh, "wb") as f:
             f.write(resp.content)
         log(f"setting exec permissions on '{winetricks_sh}'")
-        process = subprocess.Popen(
-            f"sh -c 'chmod +x {winetricks_sh}'", shell=True
-        )
-        exit_code = process.wait()
-
-        if exit_code != 0:
-            message = f"failed to set exec permission on '{winetricks_sh}'"
+        try:
+            current = os.stat(winetricks_sh).st_mode
+            os.chmod(
+                winetricks_sh,
+                current | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH,
+            )
+        except OSError as e:
+            message = (
+                f"failed to set exec permission on '{winetricks_sh}': {e}"
+            )
             log(message)
             exit_with_message("ERROR", message, ask_for_log=True)
 
-    # Prepare the command with the correct environment
-    command = f"export PATH='{proton_bin}' && export WINEPREFIX='{WINEPREFIX}' && {winetricks_sh} {command}"
+    # Prepare the command with the correct environment. Quote the path-like
+    # parts so spaces or special chars in the Proton path / prefix don't break
+    # the shell command (the && / export still require a shell).
+    command = (
+        f"export PATH={shlex.quote(proton_bin)} && "
+        f"export WINEPREFIX={shlex.quote(WINEPREFIX)} && "
+        f"{shlex.quote(winetricks_sh)} {command}"
+    )
 
     # Execute the command and return the response
     resp = popup_execute("winetricks", command)
@@ -332,8 +353,13 @@ def winetricks(command: str, proton_bin: str) -> int:
 
 # Function to execute wine commands
 def wine(command: str, proton_bin: str) -> int:
-    # Prepare the command with the correct environment
-    command = f"export PATH='{proton_bin}' && export WINEPREFIX='{WINEPREFIX}' && wine {command}"
+    # Prepare the command with the correct environment. Quote the path-like
+    # parts (the && / export still require a shell).
+    command = (
+        f"export PATH={shlex.quote(proton_bin)} && "
+        f"export WINEPREFIX={shlex.quote(WINEPREFIX)} && "
+        f"wine {command}"
+    )
 
     # Execute the command and return the response
     resp = popup_execute("wine", command)

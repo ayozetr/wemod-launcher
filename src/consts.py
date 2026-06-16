@@ -45,11 +45,15 @@ def getbatcmd():
 
             url = f"https://raw.githubusercontent.com/{repo_concat}/refs/heads/main/wemod.bat"
             response = http_get(url)
+            if getattr(response, "status_code", 200) != 200:
+                raise Exception(
+                    f"HTTP {getattr(response, 'status_code', '?')} for {url!r}"
+                )
             with open(batf, "wb") as f:
                 f.write(response.content)
 
         except Exception as e:
-            pass
+            log(f"Failed to download wemod.bat: {e}")
         if not os.path.isfile(batf):
             exit_with_message(
                 "Missing bat",

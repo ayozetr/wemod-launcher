@@ -3,6 +3,8 @@
 wemod_data/
 wemod_venv/
 __pycache__/
+.pytest_cache/
+.ruff_cache/
 wemod.conf
 wemod.log
 winetricks

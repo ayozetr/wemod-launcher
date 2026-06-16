@@ -114,6 +114,22 @@ wemod-launcher will automatically update if you installed it using step 5.
 4. After you managed to find and click download, a tested prefix will be downloaded.  
 5. After that it should work.  
 
+## Development
+
+The launcher's Python code lives in `src/`. To work on it locally:
+
+```bash
+pip install pytest ruff black
+
+pytest            # run the unit tests (pure-logic helpers)
+ruff check src/   # lint
+black -l 78 src/  # format (matches the CI line length)
+```
+
+CI runs `ruff` and `pytest` on every push and pull request (see
+`.github/workflows/tests.yml`). A roadmap of known bugs and pending
+improvements is tracked in [`MEJORAS-PENDIENTES.md`](MEJORAS-PENDIENTES.md).
+
 ## ![Heart](https://cdn.discordapp.com/emojis/1113579886439833690.gif?size=20&quality=lossless) Additional
 
 ![WeModApp](https://cdn.discordapp.com/emojis/761419274945953842.webp?size=20&quality=lossless) **Video Tutorial:** [WeMod-launcher Setup Tutorial by Marvin1099](https://youtu.be/5UlVCZvIl1E)  

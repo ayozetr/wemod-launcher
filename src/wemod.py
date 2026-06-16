@@ -53,7 +53,6 @@ from setup import (
 
 from paths import SCRIPT_IMP_FILE as SCRIPT_FILE, SCRIPT_PATH, SCRIPT_BASE
 
-
 # Fist main block of two
 if __name__ == "__main__":
     # Print version and update config

@@ -62,9 +62,10 @@ class TestListDelimiters:
         ) == ["a", "b", "--", "c"]
 
     def test_join_without_delimiter(self):
-        assert corenodep.join_lists_with_delimiter(
-            [["a"], ["b"]]
-        ) == ["a", "b"]
+        assert corenodep.join_lists_with_delimiter([["a"], ["b"]]) == [
+            "a",
+            "b",
+        ]
 
     def test_split_join_roundtrip(self):
         original = [["proton", "run"], ["game.exe"]]

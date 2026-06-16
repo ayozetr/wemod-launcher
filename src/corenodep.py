@@ -32,9 +32,7 @@ def check_dependencies(requirements_file: str) -> bool:
             line = line.strip()
             if not line or line.startswith("#"):
                 continue
-            package = (
-                line.split("==")[0].split(">=")[0].split("[")[0].strip()
-            )
+            package = line.split("==")[0].split(">=")[0].split("[")[0].strip()
             try:
                 metadata.version(package)
             except metadata.PackageNotFoundError:

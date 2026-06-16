@@ -58,7 +58,9 @@ def ensure_wine(verstr: Optional[str] = None) -> str:
         except FileExistsError:
             pass
         except OSError as e:
-            log(f"Could not link '{WINEPREFIX}' -> '{BASE_STEAM_COMPAT}': {e}")
+            log(
+                f"Could not link '{WINEPREFIX}' -> '{BASE_STEAM_COMPAT}': {e}"
+            )
 
     users = os.path.join(ProtonPfx, "users")
     myuser = None
@@ -420,7 +422,9 @@ def troubleshooter() -> None:
             try:
                 shutil.rmtree(BASE_STEAM_COMPAT)
             except OSError as e:
-                log(f"Could not delete game prefix '{BASE_STEAM_COMPAT}': {e}")
+                log(
+                    f"Could not delete game prefix '{BASE_STEAM_COMPAT}': {e}"
+                )
         elif not ret or ret == "Close wemod-launcher":
             runtro = False
             log("Closing troubleshooter as requested")

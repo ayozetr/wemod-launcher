@@ -12,15 +12,27 @@
 
 ## Estado actual
 
+**✅ TODAS las fases completadas** en la rama `fix/correctness-and-hardening`.
+Verificado con `python3 -m py_compile`, `ruff check src/` (0 errores) y
+`pytest` (16 tests en verde). Lo único no ejecutable en este entorno es el
+flujo end-to-end real (requiere Steam/Proton/Wine) y `wemod.bat` (corre dentro
+del prefijo Wine); sus cambios se revisaron por diff.
+
 | Fase | Descripción | Estado |
 |------|-------------|--------|
-| 0 | Refactor `paths.py` (dedup boilerplate `SCRIPT_PATH` en 7 módulos) | ✅ **HECHO** (commiteado, `py_compile` + imports verificados) |
-| 1 | Bugs de corrección (10) | ⬜ Pendiente |
-| 2 | Endurecer subprocess/shell y descargas | ⬜ Pendiente |
-| 3 | Refactor: `consts.py` sin efectos en import-time | ⬜ Pendiente |
-| 4 | Escritura atómica de `wemod.conf` | ⬜ Pendiente |
-| 5 | `wemod.bat`: quoting y cuelgues | ⬜ Pendiente |
-| 6 | Tests (`pytest`) + `ruff` en CI | ⬜ Pendiente |
+| 0 | Refactor `paths.py` (dedup boilerplate `SCRIPT_PATH` en 7 módulos) | ✅ HECHO |
+| 1 | Bugs de corrección (10 + menores) | ✅ HECHO |
+| 2 | Endurecer subprocess/shell y descargas | ✅ HECHO |
+| 3 | Refactor: `consts.py` sin efectos en import-time | ✅ HECHO |
+| 4 | Escritura atómica de `wemod.conf` | ✅ HECHO |
+| 5 | `wemod.bat`: quoting y cuelgues | ✅ HECHO |
+| 6 | Tests (`pytest`) + `ruff` en CI | ✅ HECHO |
+
+> Nota sobre alcance: el refactor "config global → objeto inyectable" (Fase 4)
+> se hizo de forma conservadora (escritura atómica), no reescribiendo la API en
+> 6 módulos, por riesgo sin tests E2E. Algunos bugs menores de robustez listados
+> abajo (p. ej. `deref` con symlinks relativos, `commonprefix` por caracteres,
+> validación de `assets`/`net[0]`) quedan como mejoras opcionales futuras.
 
 **Limpieza de ramas (hecha):** se borraron las 19 ramas heredadas del upstream
 en `origin`; queda solo `main`. El remote `upstream` apunta a

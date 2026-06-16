@@ -3,6 +3,7 @@
 
 import os
 import sys
+import glob
 import stat
 import shutil
 import subprocess
@@ -247,6 +248,10 @@ def venv_manager() -> List[Optional[str]]:
                 )
             return [venv_python]
 
+    # Dependencies are already satisfied: no venv needed, return [] (not None)
+    # so the caller's len() check and the declared List contract both hold.
+    return []
+
 
 def self_update(path: List[Optional[str]]) -> List[Optional[str]]:
     upd = os.getenv("SELF_UPDATE")
@@ -318,11 +323,17 @@ def self_update(path: List[Optional[str]]) -> List[Optional[str]]:
             )
             subprocess.run(flatpak_cmd + ["git", "pull"], text=True)
 
-            # Set executable permissions (replace with specific file names if needed)
-            subprocess.run(
-                flatpak_cmd + ["chmod", "-R", "ug+x", "*.py", "wemod.bat"],
-                text=True,
-            )
+            # Set executable permissions. The previous "*.py" was passed
+            # literally (no shell to expand the glob), so expand it ourselves.
+            exec_files = glob.glob(os.path.join(SCRIPT_PATH, "*.py"))
+            bat_file = os.path.join(SCRIPT_PATH, "wemod.bat")
+            if os.path.isfile(bat_file):
+                exec_files.append(bat_file)
+            if exec_files:
+                subprocess.run(
+                    flatpak_cmd + ["chmod", "-R", "ug+x"] + exec_files,
+                    text=True,
+                )
 
             # Optionally update the path to include the executable if not already set
             if not path:
@@ -393,7 +404,7 @@ def setup_main() -> None:
         winetricks
     ):
         if os.path.isfile(winetricks):
-            shutil.rmtree(winetricks)
+            os.remove(winetricks)
         log("Winetricks not found...")
         log("Downloading latest winetricks...")
 

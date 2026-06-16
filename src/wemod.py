@@ -859,17 +859,14 @@ def run(skip_init: bool = False) -> str:
     PROTON = ""
     fnr = -1
 
-    # Original logic for finding the Proton tool path if delimiter is present
-    tools = os.getenv("STEAM_COMPAT_TOOL_PATHS").split(os.pathsep)
-    if fnr <= 0 and tools:
-        for tool in tools:
-            for nr, aarg in enumerate(ARGS):
-                if aarg and len(aarg) > 2 and aarg[0] == os.sep:
-                    if tool == os.path.dirname(aarg):
-                        if nr > fnr:
-                            fnr = nr
-                            break
-    # find the first argument that has the Proton tool path
+    # Find the first argument that sits under one of the Steam compat tool
+    # paths. os.getenv may be unset when run outside the Steam runtime, so
+    # default to "" and drop empty entries instead of crashing on None.split.
+    tools = [
+        t
+        for t in os.getenv("STEAM_COMPAT_TOOL_PATHS", "").split(os.pathsep)
+        if t
+    ]
     if tools:
         for tool in tools:
             for nr, aarg in enumerate(ARGS):
@@ -955,8 +952,12 @@ def run(skip_init: bool = False) -> str:
         PROTON = PROTON_CMD[0]
 
         fnr_p = 0  # Use a different variable for index within PROTON_CMD to avoid confusion
-        # If there is a file then it's a custom runner so don't use a verb
-        if PROTON[(fnr_p + 1)].find(".") >= 0:
+        # If there is a file then it's a custom runner so don't use a verb.
+        # Index PROTON_CMD (the list), not PROTON (the executable path string).
+        if (
+            len(PROTON_CMD) > (fnr_p + 1)
+            and PROTON_CMD[(fnr_p + 1)].find(".") >= 0
+        ):
             fnr_p -= 1
             verb = []
             tout = 60
@@ -1172,18 +1173,18 @@ def run(skip_init: bool = False) -> str:
 # Second main block
 if __name__ == "__main__":
     # Main execution block
-    RESPONCE = ""
+    RESPONSE = ""
     logy = "No"
     try:
-        RESPONCE = run()
+        RESPONSE = run()
     except Exception as e:
-        RESPONCE = "ERR:\n" + str(e)
+        RESPONSE = "ERR:\n" + str(e)
         logy = show_message(
             "Error occurred. Open the log?", "Error occurred", 30, True
         )
 
     # Log final response or error
-    log(str(RESPONCE))
+    log(str(RESPONSE))
     log("\n\n\n")
 
     if not logy or logy == "Yes":

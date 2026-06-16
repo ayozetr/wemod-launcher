@@ -281,7 +281,8 @@ def pip(command: str, venv_path: Optional[str] = None) -> int:
             return 99
         else:
             show_message(
-                "The pip inside the virtual environment reported an error.\nThis may require the deletion of the virtual environment folder;\nby default, the folder is named named wemod_venv\nand is located inside the wemod-launcher folder"
+                "The pip inside the virtual environment reported an error.\nThis may require the deletion of the virtual environment folder;\nby default, the folder is named wemod_venv\nand is located inside the wemod-launcher folder",
+                "Pip error",
             )
             log(
                 f"A pip error occurred.\nThis may require the deletion of the virtual environment folder;\nby default, the folder is named named wemod_venv\nand is located inside the wemod-launcher folder.\nError message:\n\t{stdout}\n\t{stderr}"

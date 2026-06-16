@@ -81,15 +81,17 @@ def get_compat() -> str:
             tools = os.getenv("STEAM_COMPAT_TOOL_PATHS")
             # if tools set and wine not in compat tools
             if (
-                tools
+                wine
+                and tools
                 and len(tools.strip(os.pathsep)) > 0
                 and os.path.dirname(wine) not in tools.split(os.pathsep)
             ):
-                if wine:
-                    # add wine compat tool
-                    os.environ["STEAM_COMPAT_TOOL_PATHS"] = (
-                        tools.strip(os.pathsep) + ":" + os.path.dirname(wine)
-                    )
+                # add wine compat tool
+                os.environ["STEAM_COMPAT_TOOL_PATHS"] = (
+                    tools.strip(os.pathsep)
+                    + os.pathsep
+                    + os.path.dirname(wine)
+                )
             # if tools are empty
             elif not tools or len(tools.strip(os.pathsep)) == 0:
                 if not wine:

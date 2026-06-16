@@ -103,7 +103,7 @@ def parse_version(
                 currentnumber = ""
 
         if not minornumber:
-            minornumber = 0
+            minornumber = "0"
         if len(minornumber.lstrip("0")) > 2:
             minornumber = minornumber.lstrip("0")
             if len(minornumber) > 3:

@@ -39,7 +39,6 @@ from mainutils import (
     get_dotnet48,
     get_github_releases,
     popup_download,
-    popup_execute,
     unpack_zip_with_progress,
 )
 
@@ -744,8 +743,6 @@ def download_prefix(proton_dir: str) -> None:
 
 
 def build_prefix(proton_dir: str) -> None:
-    import FreeSimpleGUI as sg
-
     # Set environment path
     path = (
         os.path.join(SCRIPT_PATH, "bin")

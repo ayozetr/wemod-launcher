@@ -10,7 +10,6 @@ import subprocess
 
 # Import consts
 from consts import (
-    STEAM_COMPAT_FOLDER,
     BASE_STEAM_COMPAT,
     SCAN_FOLDER,
     WINEPREFIX,

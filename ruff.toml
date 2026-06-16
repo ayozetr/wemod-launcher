@@ -1,0 +1,11 @@
+# Ruff configuration.
+#
+# Conservative rule set so CI can stay green on this codebase: pyflakes errors
+# that catch real bugs (unused imports, undefined names, redefinitions) plus
+# syntax errors. Style rules (E/W) and the many "== None" / unused-variable
+# findings are intentionally left out for now; they can be enabled gradually.
+line-length = 79
+target-version = "py39"
+
+[lint]
+select = ["F401", "F811", "F821", "E9"]

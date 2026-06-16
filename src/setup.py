@@ -32,7 +32,6 @@ from mainutils import (
 
 from typing import (
     Optional,
-    Union,
     List,
 )
 
@@ -185,7 +184,7 @@ def mk_venv() -> Optional[str]:
 def tk_check() -> None:
     try:
         if not bool(check_flatpak(None)):
-            import tkinter
+            import tkinter  # noqa: F401  (imported only to probe availability)
     except ImportError:
         exit_with_message(
             "Tkinter missing",
@@ -391,7 +390,6 @@ def check_flatpak(flatpak_cmd: Optional[List[str]]) -> List[str]:
 
 def setup_main() -> None:
     import tempfile
-    import FreeSimpleGUI as sg
 
     if not welcome():
         print("Installation cancelled by user")

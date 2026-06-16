@@ -65,7 +65,7 @@ def save_conf_setting(
         return
     if section not in CONFIG:
         CONFIG[section] = {}
-    if value == None:
+    if value is None:
         if setting in CONFIG[section]:
             del CONFIG[section][setting]
     elif isinstance(value, str):
@@ -167,3 +167,36 @@ def join_lists_with_delimiter(
     if delimiter is not None and result:
         result.pop()  # Remove the last delimiter if delimiter is not None
     return result
+
+
+# Check if a string contains a url protocol
+def contains_url_protocol(s: str) -> bool:
+    parts = s.split("://")
+    if len(parts) < 2:
+        return False
+
+    protocol = parts[0]
+    return protocol.isalnum() and len(protocol) > 1
+
+
+def is_exe_or_forced(s: str) -> bool:
+    env_val = os.getenv("NO_EXE")
+    if env_val:  # check env
+        if env_val.lower() == "false":
+            return True  # we want game exe, so true
+        elif env_val.lower() == "none":
+            pass  # none is to just ignore
+        else:
+            return False  # assume since set, user wanted to NO exe
+
+    cfg_val = load_conf_setting("NoEXE")
+    if cfg_val:  # same check with conf
+        if cfg_val.lower() == "false":
+            return True
+        elif cfg_val.lower() == "none":
+            pass
+        else:
+            return False
+
+    # final check if not url its a exe
+    return not contains_url_protocol(s)

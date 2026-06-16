@@ -55,18 +55,18 @@ def log(message: Optional[str] = None, open_log: bool = False) -> None:
                 save_conf_setting("WeModLog", wemodlog)
 
             new_message = f"WeModLog path was not given or invalid using path '{wemodlog}'\nIf you don't want to generate a log file, use WEMOD_LOG='' or set the config to WeModLog=''"
-            if message == None:
+            if message is None:
                 message = new_message
             else:
                 message = new_message + "\n" + message
-        if message != None:
+        if message is not None:
             message = str(message)
         if message and message[-1] != "\n":
             message += "\n"
         if not os.path.isabs(wemodlog):
             wemodlog = os.path.abspath(os.path.join(SCRIPT_PATH, wemodlog))
         with open(wemodlog, "a") as f:
-            if message != None:
+            if message is not None:
                 f.write(message)
         if open_log:
             subprocess.run(["xdg-open", wemodlog])
@@ -171,7 +171,7 @@ def show_message(
     else:
         sg.theme("systemdefault")
         close = True
-        if timeout == None:
+        if timeout is None:
             close = False
         if yesno:
             response = sg.popup_yes_no(
@@ -243,7 +243,7 @@ def pip(command: str, venv_path: Optional[str] = None) -> int:
         python_executable = sys.executable
 
     # Try to use pip directly if possible
-    if pos_pip == None:
+    if pos_pip is None:
         pos_pip = "pip"
         process = subprocess.Popen(
             [pos_pip] + shlex.split(command),
@@ -386,7 +386,7 @@ def bat_respond(responsefile: str, bout: Optional[int]) -> Optional[bool]:
     if os.path.isfile(responsefile):
         log("Detected abrupt game closure. User should select what they want")
         returnmessage = read_file(responsefile)
-        if bout != None:
+        if bout is not None:
             batresp = show_message(
                 returnmessage
                 + f'\nYou can still use wemod by clicking "Yes",\nthis will keep wemod open in the backround\nIf you want to close WeMod click "No"\nWeMod will automaticly close in {bout} seconds, if nothing is done',
@@ -397,7 +397,7 @@ def bat_respond(responsefile: str, bout: Optional[int]) -> Optional[bool]:
             log(
                 f"The user selected {batresp} after being asked to wait longer for WeMod"
             )
-        if bout == None or batresp == "Yes":
+        if bout is None or batresp == "Yes":
             show_message(
                 returnmessage
                 + '\nClick "OK" ONLY if you are ready to close WeMod\nTo KEEP it open, just minimize THIS message box.',
@@ -450,7 +450,7 @@ def popup_options(
     layout = [[sg.Text(message)]] + buttons_layout
 
     close = True
-    if timeout == None:
+    if timeout is None:
         close = False
 
     window = sg.Window(
@@ -491,7 +491,7 @@ def get_user_input(
     ]
 
     close = True
-    if timeout == None:
+    if timeout is None:
         close = False
 
     window = sg.Window(

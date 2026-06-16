@@ -92,7 +92,7 @@ def download_wemod(temp_dir: str) -> str:
         event, values = window.read(timeout=1000)
         if event == "-DL COMPLETE-":
             break
-        elif event == None or event == sg.WIN_CLOSED:
+        elif event is None or event == sg.WIN_CLOSED:
             exit_with_message(
                 "Window Closed", "The window was closed, exiting", timeout=5
             )

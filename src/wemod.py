@@ -11,6 +11,7 @@ from typing import Optional
 
 # Import core utils without download dependencies
 from corenodep import (
+    is_exe_or_forced,
     join_lists_with_delimiter,
     load_conf_setting,
     parse_version,
@@ -489,7 +490,7 @@ def init(proton: str, iswine: bool = False) -> None:
         prefix_version_file = ensure_wine()
     current_proton_version = read_file(prefix_version_file)
     current_version_parts = parse_version(current_proton_version)
-    if current_version_parts == None:
+    if current_version_parts is None:
         exit_with_message(
             "Missing Proton version",
             f"Error: The GE-Proton version file could not be read, located at:\n'{prefix_version_file}'.\nTry to delete the game prefix located at:\n'{BASE_STEAM_COMPAT}'",
@@ -528,7 +529,7 @@ def init(proton: str, iswine: bool = False) -> None:
                 title="Very likely compatible WeMod version detected",
                 yesno=True,
             )
-            if response == None:
+            if response is None:
                 response = "Yes"
         elif (
             closest_version
@@ -540,7 +541,7 @@ def init(proton: str, iswine: bool = False) -> None:
                 title="Likely compatible WeMod version detected",
                 yesno=True,
             )
-            if response == None:
+            if response is None:
                 response = "Yes"
         elif (
             closest_version
@@ -684,7 +685,7 @@ def download_prefix(proton_dir: str) -> None:
             title="Likely compatible version found",
             yesno=True,
         )
-        if response == None:
+        if response is None:
             response = "Yes"
     elif closest_version and current_version_parts:
         response = show_message(
@@ -831,39 +832,6 @@ def build_prefix(proton_dir: str) -> None:
             response,
             ask_for_log=True,
         )
-
-
-# Check if a string contains a url protocol
-def contains_url_protocol(s: str) -> bool:
-    parts = s.split("://")
-    if len(parts) < 2:
-        return False
-
-    protocol = parts[0]
-    return protocol.isalnum() and len(protocol) > 1
-
-
-def is_exe_or_forced(s: str) -> bool:
-    env_val = os.getenv("NO_EXE")
-    if env_val:  # check env
-        if env_val.lower() == "false":
-            return True  # we want game exe, so true
-        elif env_val.lower() == "none":
-            pass  # none is to just ignore
-        else:
-            return False  # assume since set, user wanted to NO exe
-
-    cfg_val = load_conf_setting("NoEXE")
-    if cfg_val:  # same check with conf
-        if cfg_val.lower() == "false":
-            return True
-        elif cfg_val.lower() == "none":
-            pass
-        else:
-            return False
-
-    # final check if not url its a exe
-    return not contains_url_protocol(s)
 
 
 # Main run function

@@ -684,7 +684,7 @@ def flatpakrunner():
         print(str(process.stdout))
         print(str(process.stderr))
     try:
-        if os.getenv("SteamCompatDataPath") == None:
+        if os.getenv("SteamCompatDataPath") is None:
             wserver = subprocess.run(
                 ["flatpak-spawn", "--host", "wineserver", "--wait"],
                 bufsize=1,

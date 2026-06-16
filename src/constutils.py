@@ -114,7 +114,7 @@ def ensure_wine(verstr: Optional[str] = None) -> str:
                         20,
                         False,
                     )
-            if resp != None:
+            if resp is not None:
                 with open(ProtonVersion, "w") as pver:
                     pver.write(resp)
         return ProtonVersion
@@ -372,7 +372,7 @@ def troubleshooter() -> None:
     if not trouble:
         trouble = load_conf_setting("Troubleshoot")
     runtro = False
-    if trouble == None or (trouble and trouble.lower() == "true"):
+    if trouble is None or (trouble and trouble.lower() == "true"):
         runtro = True
         log("Starting troubleshooter")
     else:

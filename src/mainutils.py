@@ -2,7 +2,6 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import os
-import sys
 import pwd
 import shutil
 
@@ -28,11 +27,7 @@ from coreutils import (
     http_get,
 )
 
-if getattr(sys, "frozen", False):
-    SCRIPT_IMP_FILE = os.path.realpath(sys.executable)
-else:
-    SCRIPT_IMP_FILE = os.path.realpath(__file__)
-SCRIPT_PATH = os.path.dirname(SCRIPT_IMP_FILE)
+from paths import SCRIPT_PATH
 
 
 # Get the GitHub releases from "USERNAME/REPO"

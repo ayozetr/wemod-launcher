@@ -35,15 +35,7 @@ from typing import (
     List,
 )
 
-if getattr(sys, "frozen", False):
-    SCRIPT_IMP_FILE = os.path.realpath(sys.executable)
-else:
-    SCRIPT_IMP_FILE = os.path.realpath(__file__)
-SCRIPT_PATH = os.path.dirname(SCRIPT_IMP_FILE)
-if os.path.basename(SCRIPT_PATH) == "src":
-    SCRIPT_BASE = os.path.dirname(SCRIPT_PATH)
-else:
-    SCRIPT_BASE = SCRIPT_PATH
+from paths import SCRIPT_PATH, SCRIPT_BASE
 
 
 def welcome() -> bool:

@@ -51,15 +51,7 @@ from setup import (
     venv_manager,
 )
 
-if getattr(sys, "frozen", False):
-    SCRIPT_FILE = os.path.realpath(sys.executable)
-else:
-    SCRIPT_FILE = os.path.realpath(__file__)
-SCRIPT_PATH = os.path.dirname(SCRIPT_FILE)
-if os.path.basename(SCRIPT_PATH) == "src":
-    SCRIPT_BASE = os.path.dirname(SCRIPT_PATH)
-else:
-    SCRIPT_BASE = SCRIPT_PATH
+from paths import SCRIPT_IMP_FILE as SCRIPT_FILE, SCRIPT_PATH, SCRIPT_BASE
 
 
 # Fist main block of two

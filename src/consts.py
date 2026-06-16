@@ -2,7 +2,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
 import os
-import sys
+
+from paths import SCRIPT_PATH
 
 from corenodep import (
     load_conf_setting,
@@ -14,12 +15,6 @@ from coreutils import (
     log,
     http_get,
 )
-
-if getattr(sys, "frozen", False):
-    SCRIPT_IMP_FILE = os.path.realpath(sys.executable)
-else:
-    SCRIPT_IMP_FILE = os.path.realpath(__file__)
-SCRIPT_PATH = os.path.dirname(SCRIPT_IMP_FILE)
 
 
 def getbatcmd():

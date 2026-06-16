@@ -22,11 +22,7 @@ from corenodep import (
     read_file,
 )
 
-if getattr(sys, "frozen", False):
-    SCRIPT_IMP_FILE = os.path.realpath(sys.executable)
-else:
-    SCRIPT_IMP_FILE = os.path.realpath(__file__)
-SCRIPT_PATH = os.path.dirname(SCRIPT_IMP_FILE)
+from paths import SCRIPT_PATH
 
 FALLBACK_USER_AGENT = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36"
 TOP_UA_URL = "https://raw.githubusercontent.com/microlinkhq/top-user-agents/refs/heads/master/src/index.json"

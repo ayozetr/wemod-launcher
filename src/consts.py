@@ -16,6 +16,21 @@ from coreutils import (
     http_get,
 )
 
+# Environment-derived constants. They stay None until init_consts() is called
+# explicitly (from the launcher, after the bootstrap/re-exec phase), so that
+# merely importing this module has no side effects: no network download, no
+# os.environ mutation, no process exit. This keeps the module importable in
+# isolation (e.g. for tests).
+BAT_COMMAND = None
+BASE_STEAM_COMPAT = None
+STEAM_COMPAT_FOLDER = None
+SCAN_FOLDER = None
+WINEPREFIX = None
+INIT_FILE = None
+
+# Pure path constant (no side effects), safe at import time.
+WINETRICKS = os.path.join(SCRIPT_PATH, "winetricks")
+
 
 def getbatcmd():
     batf = os.path.join(SCRIPT_PATH, "wemod.bat")
@@ -61,9 +76,6 @@ def getbatcmd():
             )
 
     return ["start", winpath(batf)]
-
-
-BAT_COMMAND = getbatcmd()
 
 
 # Function to grab the Steam Compat Data Path
@@ -125,10 +137,6 @@ def get_compat() -> str:
     return ecompat
 
 
-BASE_STEAM_COMPAT = get_compat()
-STEAM_COMPAT_FOLDER = os.path.dirname(BASE_STEAM_COMPAT)
-
-
 def get_scan_folder():
     wscanfolder = os.getenv("SCANFOLDER")
     cscanfolder = load_conf_setting("ScanFolder")
@@ -139,7 +147,20 @@ def get_scan_folder():
     return wscanfolder
 
 
-SCAN_FOLDER = get_scan_folder()
-WINETRICKS = os.path.join(SCRIPT_PATH, "winetricks")
-WINEPREFIX = os.path.join(BASE_STEAM_COMPAT, "pfx")
-INIT_FILE = os.path.join(WINEPREFIX, ".wemod_installer")
+def init_consts() -> None:
+    """Resolve the environment-derived constants.
+
+    Must be called once by the launcher after the bootstrap/re-exec phase and
+    before any of the module-level constants above are used. This performs the
+    side effects that used to run at import time: it ensures/downloads
+    wemod.bat, resolves the Steam/Wine compat prefix, may mutate os.environ and
+    may exit the process on a misconfigured environment.
+    """
+    global BAT_COMMAND, BASE_STEAM_COMPAT, STEAM_COMPAT_FOLDER
+    global SCAN_FOLDER, WINEPREFIX, INIT_FILE
+    BAT_COMMAND = getbatcmd()
+    BASE_STEAM_COMPAT = get_compat()
+    STEAM_COMPAT_FOLDER = os.path.dirname(BASE_STEAM_COMPAT)
+    SCAN_FOLDER = get_scan_folder()
+    WINEPREFIX = os.path.join(BASE_STEAM_COMPAT, "pfx")
+    INIT_FILE = os.path.join(WINEPREFIX, ".wemod_installer")

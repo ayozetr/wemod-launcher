@@ -105,8 +105,14 @@ if __name__ == "__main__":
         sys.exit(process.returncode)
 
 
-# Import utils that need constants
-# Import consts
+# Import utils that need constants. Resolve the environment-derived constants
+# explicitly here (after the bootstrap/re-exec phase) instead of relying on
+# import-time side effects in consts. constutils is imported afterwards, so its
+# own "from consts import ..." picks up the now-initialised values.
+import consts
+
+consts.init_consts()
+
 from consts import (
     BASE_STEAM_COMPAT,
     BAT_COMMAND,

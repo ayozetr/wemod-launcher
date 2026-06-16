@@ -63,6 +63,11 @@ def find_closest_compatible_release(
         if tag_name and tag_name.startswith("PfxVer"):
             release_version_parts = parse_version(tag_name)
             if release_version_parts and current_version_parts:
+                # Skip PfxVer releases without a usable download asset so the
+                # release["assets"][0][...] accesses below can't raise.
+                assets = release.get("assets") or []
+                if not assets or not assets[0].get("browser_download_url"):
+                    continue
                 if (
                     release_version_parts[0] == current_version_parts[0]
                     and release_version_parts[1] == current_version_parts[1]
@@ -325,6 +330,11 @@ def deref(path: str) -> None:
             if item.is_symlink():
                 target = str(item)
                 src = os.readlink(target)
+                # readlink may be relative to the symlink's directory; make it
+                # absolute so the later exists()/open() resolve the real target
+                # instead of a path relative to the current working directory.
+                if not os.path.isabs(src):
+                    src = os.path.join(os.path.dirname(target), src)
                 links.append([target, src])
         return links
 
@@ -356,6 +366,14 @@ def deref(path: str) -> None:
             )
 
     window.close()
+
+
+def _path_under_prefix(rel_path: str, prefix: str) -> bool:
+    """True if rel_path equals prefix or is contained in it, matching whole
+    path components so 'a/b' does not match the prefix 'a/bc'."""
+    parts = rel_path.replace("\\", "/").split("/")
+    pref = prefix.replace("\\", "/").strip("/").split("/")
+    return parts[: len(pref)] == pref
 
 
 # Function to copy a folder from a to b, with an ignore and allow (has priority) list
@@ -431,14 +449,14 @@ def copy_folder_with_progress(
 
             # Check if the file is in one of the dirs to ignore
             for i in ignore:
-                if os.path.commonprefix([rfile, i]) == i:
+                if _path_under_prefix(rfile, i):
                     use = False  # don't use the file if it's in an ignore directory
                     break  # break out of the ignore loop
 
             # If the file is not in any ignored directory, check if it's in one of the dirs to include
             if not use:
                 for i in include_override:
-                    if os.path.commonprefix([rfile, i]) == i:
+                    if _path_under_prefix(rfile, i):
                         use = True  # use the file if it's in an include_override directory
                         break  # break out of the include_override loop
             if use:

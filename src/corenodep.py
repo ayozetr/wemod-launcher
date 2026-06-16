@@ -21,16 +21,23 @@ if os.path.exists(CONFIG_PATH):
 
 
 def check_dependencies(requirements_file: str) -> bool:
-    import importlib
+    from importlib import metadata
 
     ret = True
-    # Check if dependencies have been installed
+    # Check if dependencies have been installed. Use distribution metadata (the
+    # pip package name) rather than import_module, because the importable module
+    # name often differs from the package name (e.g. PyYAML -> yaml).
     with open(requirements_file) as f:
         for line in f:
-            package = line.strip().split("==")[0].strip()
+            line = line.strip()
+            if not line or line.startswith("#"):
+                continue
+            package = (
+                line.split("==")[0].split(">=")[0].split("[")[0].strip()
+            )
             try:
-                importlib.import_module(package)
-            except ImportError:
+                metadata.version(package)
+            except metadata.PackageNotFoundError:
                 from coreutils import log
 
                 log(f"Package '{package}' is missing")

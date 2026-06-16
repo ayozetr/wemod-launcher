@@ -206,8 +206,8 @@ def syncwemod(
         if waslink:
             try:
                 os.symlink(BASE_STEAM_COMPAT, WINEPREFIX)
-            except Exception:
-                pass
+            except OSError as e:
+                log(f"Could not restore prefix symlink '{WINEPREFIX}': {e}")
 
         with open(INIT_FILE, "w") as init:
             init.write(initcont)
@@ -385,10 +385,23 @@ def syncwemod(
                 log(
                     f"User chose to use data from '{WeModExternal}'. Overwriting central data in '{WeModData}'."
                 )
-                shutil.rmtree(WeModData)  # Clear central directory
-                shutil.copytree(
-                    WeModExternal, WeModData
-                )  # Copy external data to central
+                # Move the central data aside as a backup first, so a failed
+                # copy can be rolled back instead of destroying it.
+                backup = WeModData + ".bak"
+                if os.path.exists(backup):
+                    shutil.rmtree(backup, ignore_errors=True)
+                os.rename(WeModData, backup)
+                try:
+                    shutil.copytree(WeModExternal, WeModData)
+                except Exception as e:
+                    log(
+                        f"Failed to overwrite central data, restoring backup: {e}"
+                    )
+                    if os.path.exists(WeModData):
+                        shutil.rmtree(WeModData, ignore_errors=True)
+                    os.rename(backup, WeModData)
+                else:
+                    shutil.rmtree(backup, ignore_errors=True)
             else:  # response is "Yes" or None (default to Yes)
                 # User chose or defaulted to using data from the central directory.
                 log(

@@ -116,14 +116,17 @@ def get_wemod_exe_url():
     )
     raw = http_get(SCOOP_METADATA_URL).json()
 
-    if not raw["architecture"]["64bit"]["url"]:
+    # Navigate the Scoop manifest defensively: a changed/missing key should
+    # give the friendly message below, not a raw KeyError.
+    url = raw.get("architecture", {}).get("64bit", {}).get("url")
+    if not url:
         exit_with_message(
             "Unable to find WeMod EXE URL from Scoop",
             "Please raise on GitHub!",
             timeout=120,
         )
 
-    return raw["architecture"]["64bit"]["url"]
+    return url
 
 
 def unpack_wemod(
@@ -141,6 +144,13 @@ def unpack_wemod(
                 archive.filelist,
             )
         )
+
+        if not net:
+            log(
+                "Failed to unpack WeMod: no 'lib/net' entries found in the "
+                "installer archive (its format may have changed)"
+            )
+            return False
 
         tmp_net = tempfile.mkdtemp(prefix="wemod-net")
         archive.extractall(tmp_net, net)

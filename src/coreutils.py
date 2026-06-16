@@ -362,8 +362,8 @@ def monitor_file(
         else:
             try:
                 bout = int(cout)
-            except Exception as e:
-                pass
+            except ValueError as e:
+                log(f"Invalid WaitOnGameclose value '{cout}': {e}")
 
     for _ in range(tout):
         time.sleep(1)
@@ -521,6 +521,15 @@ def get_user_input(
             )  # Return None or a default value as needed
 
 
+def _version_tuple(value):
+    """Parse a dotted version string into a tuple of ints for safe comparison;
+    returns None if it can't be parsed (e.g. a non-numeric component)."""
+    try:
+        return tuple(int(part) for part in str(value).split("."))
+    except (ValueError, AttributeError):
+        return None
+
+
 def script_manager() -> None:
     script_name = "wemod-launcher"
     script_version = "1.540"
@@ -532,18 +541,20 @@ def script_manager() -> None:
     elif not last_name:
         log("Adding script name to config")
     if last_version:
-        try:
-            if float(last_version) < float(script_version):
-                log(
-                    f"Config on version {last_version} updating to {script_version}"
-                )
-            elif float(last_version) > float(script_version):
-                log(
-                    f"Warning: config on version {last_version}; downgrading to {script_version}"
-                )
-        except Exception as e:
+        last_t = _version_tuple(last_version)
+        curr_t = _version_tuple(script_version)
+        if last_t is None or curr_t is None:
             log(
-                f"Warning: config error '{e}'; changing version to {script_version}"
+                f"Warning: could not compare config version '{last_version}'; "
+                f"changing version to {script_version}"
+            )
+        elif last_t < curr_t:
+            log(
+                f"Config on version {last_version} updating to {script_version}"
+            )
+        elif last_t > curr_t:
+            log(
+                f"Warning: config on version {last_version}; downgrading to {script_version}"
             )
     else:
         log("Adding script version to config")

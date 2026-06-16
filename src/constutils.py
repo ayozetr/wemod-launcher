@@ -291,8 +291,8 @@ def scanfolderforversions(
             if waslink:
                 try:
                     os.symlink(prefix_path_seven, sevenpfx)
-                except Exception as e:
-                    pass
+                except OSError as e:
+                    log(f"Could not restore prefix symlink '{sevenpfx}': {e}")
 
             if not initcont:
                 initcont = ""
@@ -414,13 +414,13 @@ def troubleshooter() -> None:
                         SCRIPT_BASE, "wemod_data", "wemod_bin", "WeMod.exe"
                     )
                 )
-            except Exception as e:
-                pass
+            except OSError as e:
+                log(f"Could not delete WeMod.exe: {e}")
         elif ret == "Delete game prefix":
             try:
                 shutil.rmtree(BASE_STEAM_COMPAT)
-            except Exception as e:
-                pass
+            except OSError as e:
+                log(f"Could not delete game prefix '{BASE_STEAM_COMPAT}': {e}")
         elif not ret or ret == "Close wemod-launcher":
             runtro = False
             log("Closing troubleshooter as requested")

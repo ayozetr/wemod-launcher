@@ -28,11 +28,31 @@ del prefijo Wine); sus cambios se revisaron por diff.
 | 5 | `wemod.bat`: quoting y cuelgues | ✅ HECHO |
 | 6 | Tests (`pytest`) + `ruff` en CI | ✅ HECHO |
 
-> Nota sobre alcance: el refactor "config global → objeto inyectable" (Fase 4)
-> se hizo de forma conservadora (escritura atómica), no reescribiendo la API en
-> 6 módulos, por riesgo sin tests E2E. Algunos bugs menores de robustez listados
-> abajo (p. ej. `deref` con symlinks relativos, `commonprefix` por caracteres,
-> validación de `assets`/`net[0]`) quedan como mejoras opcionales futuras.
+### Mejoras adicionales aplicadas (segunda tanda)
+
+También se completaron las mejoras opcionales de robustez y calidad:
+
+- **Robustez**: `deref` resuelve symlinks relativos; `copy_folder_with_progress`
+  filtra por componentes de ruta (no `commonprefix` por caracteres);
+  `find_closest_compatible_release` valida que haya asset descargable;
+  `get_wemod_exe_url`/`unpack_wemod` navegan el JSON/ZIP con seguridad;
+  `check_dependencies` usa metadata de distribución (nombre pip);
+  `script_manager` compara versiones como tuplas de int; `syncwemod` hace
+  backup + rollback de los datos de login; y se loguean varios `except: pass`.
+- **Calidad**: las 18 comparaciones `== None` → `is None`; `contains_url_protocol`
+  e `is_exe_or_forced` movidas a `corenodep` y cubiertas con tests; código
+  formateado con `black -l 78`.
+- **CI**: se eliminó `black.yml` (corría sobre la rama `dev` ya borrada,
+  auto-versionaba con floats y hacía `push --force` suplantando autor) y se
+  consolidó todo en `tests.yml` (black --check + ruff + pytest, solo verifica).
+- **Licencia**: revisada — AGPL-3.0-only, headers SPDX en todos los `.py`,
+  dependencia `FreeSimpleGUI` (LGPL-3.0) compatible, sin redistribución de
+  binarios de terceros. Sin incumplimientos.
+
+> Nota sobre alcance: el único refactor descartado deliberadamente es
+> "config global → objeto inyectable" (se hizo escritura atómica en su lugar,
+> por riesgo de reescribir la API en 6 módulos sin tests E2E). Lo no verificable
+> aquí sigue siendo el flujo real con Steam/Proton/Wine y `wemod.bat` en Wine.
 
 **Limpieza de ramas (hecha):** se borraron las 19 ramas heredadas del upstream
 en `origin`; queda solo `main`. El remote `upstream` apunta a

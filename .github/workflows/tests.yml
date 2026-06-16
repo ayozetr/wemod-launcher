@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - dev
   pull_request:
 
 jobs:
@@ -20,7 +19,10 @@ jobs:
           python-version: '3.x'
 
       - name: Install tooling
-        run: pip install pytest ruff
+        run: pip install pytest ruff black
+
+      - name: Check formatting with black
+        run: black --check -l 78 src/ tests/
 
       - name: Lint with ruff
         run: ruff check src/

@@ -66,8 +66,12 @@ def save_conf_setting(
     else:
         log("Error saving given value: Not a string or None")
         return
-    with open(CONFIG_PATH, "w") as configfile:
+    # Write atomically: write to a temp file and rename over the target so a
+    # crash or a second concurrent instance can't truncate/corrupt the config.
+    tmp_path = CONFIG_PATH + ".tmp"
+    with open(tmp_path, "w") as configfile:
         CONFIG.write(configfile)
+    os.replace(tmp_path, CONFIG_PATH)
 
 
 def read_file(version_file: str) -> Optional[str]:  # read file
